@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barley-Break Game</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+  }
+  .game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-gap: 5px;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 10px;
+  }
+  .game-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 100px;
+    background-color: #fff;
+    color: #333;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 5px;
+  }
+  .empty-cell {
+    background-color: #f0f0f0;
+  }
+</style>
+</head>
+<body>
+<div class="game-board">
+  <!-- Dynamically generated game cells will go here -->
+</div>
+<script>
+  const boardSize = 4; // Assuming a 4x4 board
+  const gameBoard = document.querySelector('.game-board');
+  let board = [];
+
+  function initializeGameBoard(size) {
+    for (let i = 1; i <= size * size; i++) {
+      board.push(i);
+    }
+    board[board.length - 1] = 0; // Set the last cell to 0 to represent the empty space
+  }
+
+  function shuffleBoard() {
+    // Simple shuffle algorithm for demonstration purposes
+    for (let i = board.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [board[i], board[j]] = [board[j], board[i]];
+    }
+  }
+
+  function renderBoard() {
+    gameBoard.innerHTML = ''; // Clear the board
+    board.forEach(cell => {
+      const cellElement = document.createElement('div');
+      cellElement.classList.add('game-cell');
+      if (cell === 0) {
+        cellElement.classList.add('empty-cell');
+      } else {
+        cellElement.textContent = cell;
+        cellElement.addEventListener('click', () => moveCell(cell));
+      }
+      gameBoard.appendChild(cellElement);
+    });
+  }
+
+  function findPosition(value) {
+    return board.indexOf(value);
+  }
+
+  function swapCells(i, j) {
+    [board[i], board[j]] = [board[j], board[i]];
+    renderBoard();
+  }
+
+  function moveCell(value) {
+    const pos = findPosition(value);
+    const emptyPos = findPosition(0);
+    const validMoves = [
+      emptyPos - 1, emptyPos + 1, emptyPos - boardSize, emptyPos + boardSize
+    ];
+    if (validMoves.includes(pos)) {
+      swapCells(pos, emptyPos);
+    }
+  }
+
+  function handleKeyPress(event) {
+    const emptyPos = findPosition(0);
+    switch(event.key) {
+      case 'ArrowUp':
+        if (emptyPos < boardSize * (boardSize - 1)) swapCells(emptyPos, emptyPos + boardSize);
+        break;
+      case 'ArrowDown':
+        if (emptyPos >= boardSize) swapCells(emptyPos, emptyPos - boardSize);
+        break;
+      case 'ArrowLeft':
+        if (emptyPos % boardSize < boardSize - 1) swapCells(emptyPos, emptyPos + 1);
+        break;
+      case 'ArrowRight':
+        if (emptyPos % boardSize > 0) swapCells(emptyPos, emptyPos - 1);
+        break;
+    }
+  }
+
+  document.addEventListener('keydown', handleKeyPress);
+
+  initializeGameBoard(boardSize);
+  shuffleBoard();
+  renderBoard();
+</script>
+</body>
+</html>
